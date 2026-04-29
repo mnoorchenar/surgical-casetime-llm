@@ -1,63 +1,147 @@
-# Clinical Surgery Case Time Prediction
-### LangChain + LangGraph Pipeline
+---
+title: surgical-casetime-llm
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+---
 
-Predicts surgical case duration from pre-operative data using LangChain text embeddings, Groq LLM feature extraction, and classical ML models with Optuna hyperparameter tuning.
+<div align="center">
+
+<h1>⏱️ Surgical Case Time Prediction — LLM Pipeline</h1>
+<img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&duration=3000&pause=1000&color=3b82f6&center=true&vCenter=true&width=700&lines=LangChain+%2B+LangGraph+Orchestration;Gemini+%2B+Groq+Llama+%2B+HuggingFace+Embeddings;Optuna+HPO+%C2%B7+6+Encoding+Strategies+%C2%B7+7+ML+Models" alt="Typing SVG"/>
+
+<br/>
+
+[![Python](https://img.shields.io/badge/Python-3.10+-3b82f6?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![LangChain](https://img.shields.io/badge/LangChain-0.3+-4f46e5?style=for-the-badge)](https://www.langchain.com/)
+[![LangGraph](https://img.shields.io/badge/LangGraph-Pipeline-3b82f6?style=for-the-badge)](https://langchain-ai.github.io/langgraph/)
+[![Groq](https://img.shields.io/badge/Groq-Llama--3.1-ffcc00?style=for-the-badge)](https://console.groq.com/)
+[![Status](https://img.shields.io/badge/Status-Active-22c55e?style=for-the-badge)](#)
+
+<br/>
+
+**⏱️ Surgical Case Time Prediction — LLM Pipeline** — Predicts surgical case duration from pre-operative data using LangChain text embeddings (Gemini API + HuggingFace), Groq Llama-3 LLM feature extraction, and classical ML models with Optuna hyperparameter tuning — all orchestrated automatically by LangGraph.
+
+<br/>
 
 ---
 
-## Architecture
+</div>
 
-```
-Stage 01  Data Cleaning        casetime.csv → surgical_data.db
-Stage 02  LangChain Embeddings Gemini API (free) + HuggingFace (local) → embed_cache/
-Stage 02b LLM Features         Groq Llama-3.1-8b (free) → llm_features.json
-Stage 03  Feature Engineering  5-fold CV · impute · one-hot · PCA → fold_encoded.db
-Stage 04  Model Training       Optuna HPO · Ridge/Lasso/RF/XGB/LGB/MLP → result.db
-```
+## Table of Contents
 
-LangGraph orchestrates all stages automatically — each stage skips itself if already complete.
-
-## Encodings compared in Stage 04
-
-| Encoding | Features |
-|---|---|
-| `only_structured` | Tabular features only (baseline) |
-| `only_llm` | Tabular + LLM-extracted clinical features |
-| `gemini` | Tabular + Gemini embeddings (PCA 768→384) |
-| `huggingface` | Tabular + HuggingFace embeddings (384-d) |
-| `gemini_llm` | Tabular + Gemini + LLM features |
-| `huggingface_llm` | Tabular + HuggingFace + LLM features |
-
-## LLM-extracted features (Stage 02b)
-
-For each procedure name, Groq Llama extracts:
-- `body_region` — one-hot over 10 categories (abdomen, orthopedic, neuro, …)
-- `complexity` — 1–5 scale, normalised
-- `is_bilateral`, `is_laparoscopic`, `is_robotic`, `is_emergency` — binary flags
-- `n_procedures` — count, normalised
+- [Features](#-features)
+- [Architecture](#️-architecture)
+- [Getting Started](#-getting-started)
+- [Pipeline Stages](#-pipeline-stages)
+- [Encoding Strategies](#-encoding-strategies)
+- [ML Models](#-ml-models)
+- [Project Structure](#-project-structure)
+- [Outputs & Artifacts](#-outputs--artifacts)
+- [Reproducibility](#-reproducibility)
+- [Author](#-author)
+- [Contributing](#-contributing)
+- [Disclaimer](#disclaimer)
+- [License](#-license)
 
 ---
 
-## Setup
+## ✨ Features
 
-### 1. Install dependencies
+<table>
+  <tr>
+    <td>🔗 <b>LangGraph Orchestration</b></td>
+    <td>All pipeline stages wired as a LangGraph DAG — each stage auto-skips if already complete</td>
+  </tr>
+  <tr>
+    <td>🤖 <b>Free LLM Integration</b></td>
+    <td>Gemini API (free tier) for text embeddings · Groq Llama-3.1-8b (free tier) for structured clinical feature extraction</td>
+  </tr>
+  <tr>
+    <td>🏠 <b>Local HuggingFace Embeddings</b></td>
+    <td><code>all-MiniLM-L6-v2</code> runs fully locally — no API key required</td>
+  </tr>
+  <tr>
+    <td>🧬 <b>LLM-Extracted Clinical Features</b></td>
+    <td>Groq Llama extracts body region, complexity score, and binary surgical flags from free-text procedure names</td>
+  </tr>
+  <tr>
+    <td>⚙️ <b>Optuna Hyperparameter Tuning</b></td>
+    <td>TPE-based search with early stopping across all 7 models and 6 encoding combinations</td>
+  </tr>
+  <tr>
+    <td>📊 <b>Comprehensive Metrics</b></td>
+    <td>MAE, RMSE, R², SMAPE, feature importance, and Optuna hyperparameters stored per fold × encoding × model</td>
+  </tr>
+</table>
+
+---
+
+## 🏗️ Architecture
+
+```
+┌──────────────────────────────────────────────────────────────────┐
+│              Surgical Case Time LLM Pipeline                       │
+│                                                                    │
+│  ┌──────────┐  ┌───────────────────┐  ┌──────────────────────┐  │
+│  │ casetime │─▶│ Stage 02          │─▶│ Stage 02b            │  │
+│  │  .csv    │  │ Gemini / HF       │  │ Groq Llama-3.1       │  │
+│  └──────────┘  │ Text Embeddings   │  │ Clinical Features    │  │
+│                └────────┬──────────┘  └──────────┬───────────┘  │
+│                         │                          │              │
+│                ┌────────▼──────────────────────────▼──────────┐  │
+│                │  Stage 03 — Feature Engineering (5-fold CV)  │  │
+│                └────────────────────────┬──────────────────────┘  │
+│                                         │                          │
+│                              ┌──────────▼───────────┐             │
+│                              │ Stage 04 — Optuna HPO │             │
+│                              │ Ridge/Lasso/RF/XGB/   │             │
+│                              │ LGB/MLP               │             │
+│                              └──────────────────────┘             │
+└──────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Python 3.10+
+- Git
+- `data/casetime.csv` (source dataset — not included in repo)
+
+### Local Installation
+
 ```bash
+# 1. Clone the repository
+git clone https://github.com/mnoorchenar/surgical-casetime-llm.git
+cd surgical-casetime-llm
+
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+
+# 3. Install dependencies
 pip install -r requirements.txt
 ```
 
-### 2. Get free API keys
+### API Keys
 
 | Service | URL | Used for |
-|---|---|---|
-| Google Gemini | https://aistudio.google.com | Stage 02 embeddings |
-| Groq | https://console.groq.com | Stage 02b LLM features |
-| HuggingFace | *(no key)* | Stage 02 embeddings (local) |
+|---------|-----|----------|
+| Google Gemini | https://aistudio.google.com | Stage 02 — text embeddings |
+| Groq | https://console.groq.com | Stage 02b — LLM feature extraction |
+| HuggingFace | *(no key required)* | Stage 02 — local embeddings |
 
-### 3. Set API keys
 ```bash
-# Copy the example and fill in your keys
+# Copy the example env file and fill in your keys
 cp .env.example .env
+```
 
+Or set environment variables directly:
+
+```bash
 # Windows
 set GEMINI_API_KEY=your_key
 set GROQ_API_KEY=your_key
@@ -67,43 +151,184 @@ export GEMINI_API_KEY=your_key
 export GROQ_API_KEY=your_key
 ```
 
-Or paste them directly into the `CONFIG` block at the top of `pipeline.py`.
+### Run
 
-### 4. Run
 ```bash
 python pipeline.py
 ```
 
-The pipeline runs all stages in order, skipping any that are already complete.
-To re-run a specific stage, delete its output file:
-
-| Stage | Delete to re-run |
-|---|---|
-| Stage 01 | `data/surgical_data.db` |
-| Stage 02 | `data/embed_cache/*.npy` |
-| Stage 02b | `data/llm_features.json` |
-| Stage 03 | `data/fold_encoded.db` |
-| Stage 04 | `results/result.db` |
+The LangGraph pipeline runs all stages in order, auto-skipping any already complete.  
+To re-run a specific stage, delete its output file (see table below).
 
 ---
 
-## Configuration
+## 📊 Pipeline Stages
 
-All tunable settings are in the `CONFIG` block at the top of `pipeline.py`:
+| Stage | Description | Delete to re-run |
+|-------|-------------|------------------|
+| 01 Data Cleaning | Ingest CSV, validate, persist Clean table | `data/surgical_data.db` |
+| 02 LangChain Embeddings | Gemini API + HuggingFace local → embed_cache/ | `data/embed_cache/*.npy` |
+| 02b LLM Features | Groq Llama-3.1-8b → structured clinical features | `data/llm_features.json` |
+| 03 Feature Engineering | 5-fold CV · impute · one-hot · PCA | `data/fold_encoded.db` |
+| 04 Model Training | Optuna HPO · 7 models × 6 encodings | `results/result.db` |
 
-- `MODELS_TO_RUN` — subset of models to train (default: all 7)
-- `N_SPLITS` — cross-validation folds (default: 5)
-- `N_TRIALS` — Optuna trials per model (default: 20)
-- `GEMINI_MODEL` — embedding model (default: `text-embedding-004`)
-- `HF_MODEL` — local embedding model (default: `all-MiniLM-L6-v2`)
-- `GROQ_MODEL` — LLM model (default: `llama-3.1-8b-instant`)
+---
 
-## Output
+## 🔀 Encoding Strategies
+
+| Encoding | Features |
+|----------|----------|
+| `only_structured` | Tabular features only (baseline) |
+| `only_llm` | Tabular + Groq LLM-extracted clinical features |
+| `gemini` | Tabular + Gemini embeddings (PCA 768→384) |
+| `huggingface` | Tabular + HuggingFace embeddings (384-d) |
+| `gemini_llm` | Tabular + Gemini + LLM features |
+| `huggingface_llm` | Tabular + HuggingFace + LLM features |
+
+### LLM-Extracted Features (Stage 02b)
+
+For each unique procedure name, Groq Llama-3.1 extracts:
+
+| Feature | Type | Description |
+|---------|------|-------------|
+| `body_region` | One-hot (10 categories) | abdomen, orthopaedic, neuro, cardio, … |
+| `complexity` | Float [0, 1] | 1–5 complexity score, normalised |
+| `is_bilateral` | Binary | Bilateral procedure flag |
+| `is_laparoscopic` | Binary | Minimally invasive flag |
+| `is_robotic` | Binary | Robotic-assisted flag |
+| `is_emergency` | Binary | Emergency/urgent procedure flag |
+| `n_procedures` | Float | Procedure count, normalised |
+
+---
+
+## 🧠 ML Models
+
+```python
+# All models tuned with Optuna TPE (N_TRIALS = 20 per combo)
+models = {
+    "ridge":          "Ridge Regression (Optuna α)",
+    "lasso":          "Lasso Regression (Optuna α)",
+    "random_forest":  "RandomForestRegressor (Optuna n_est, depth, features)",
+    "xgboost":        "XGBRegressor with early stopping (Optuna)",
+    "lightgbm":       "LGBMRegressor (Optuna)",
+    "mlp":            "TensorFlow/Keras MLP, AdamW, BatchNorm, depth 1–3 (Optuna)",
+}
+```
+
+---
+
+## 📁 Project Structure
+
+```
+surgical-casetime-llm/
+│
+├── 📄 pipeline.py              # Main LangGraph pipeline (Stages 01–04)
+├── 📄 requirements.txt         # Python dependencies
+├── 📄 .env.example             # API key template
+│
+├── 📂 data/
+│   ├── 📂 embed_cache/         # Gemini and HuggingFace embedding cache (.npy)
+│   └── 📄 llm_features.json    # Groq-extracted clinical features per procedure
+│
+├── 📂 results/                 # result.db, per-model logs and PDF summaries
+│
+├── 📂 overleaf/                # LaTeX manuscript
+│   └── 📄 *.tex                # Paper sections
+│
+├── 📂 flowchart/               # Pipeline flowchart assets
+└── 📄 sync.ps1                 # Git sync utility
+```
+
+---
+
+## 📦 Outputs & Artifacts
 
 Results are saved to `results/result.db` (SQLite) with tables:
-- `metrics` — MAE, RMSE, R², SMAPE per fold × encoding × model
-- `predictions` — actual vs predicted per case
-- `feature_importance` — coefficients / importances / gradient saliency
-- `hyperparameter` — best Optuna params per combo
 
-Per-model `.log` and `.pdf` summary files are saved to `results/`.
+| Table | Contents |
+|-------|----------|
+| `metrics` | MAE, RMSE, R², SMAPE per fold × encoding × model |
+| `predictions` | Actual vs predicted duration per surgical case |
+| `feature_importance` | Coefficients / importances / gradient saliency |
+| `hyperparameter` | Best Optuna parameters per combination |
+
+Per-model `.log` and `.pdf` summary files are also saved to `results/`.
+
+---
+
+## 🔁 Reproducibility
+
+- Fixed random seed (`RANDOM_STATE = 42`) used throughout all stages.
+- All preprocessing (imputation, encoding, PCA) is fit on train folds only — no leakage.
+- Gemini and HuggingFace embeddings are cached after the first run.
+- LLM feature extraction (Stage 02b) is cached in `llm_features.json` — deterministic per procedure name.
+- Stages 01–03 auto-skip when outputs are present.
+
+---
+
+## 👨‍💻 Author
+
+<div align="center">
+
+<table>
+<tr>
+<td align="center" width="100%">
+
+<img src="https://avatars.githubusercontent.com/mnoorchenar" width="120" style="border-radius:50%; border: 3px solid #4f46e5;" alt="Mohammad Noorchenarboo"/>
+
+<h3>Mohammad Noorchenarboo</h3>
+
+<code>Data Scientist</code> &nbsp;|&nbsp; <code>AI Researcher</code> &nbsp;|&nbsp; <code>Biostatistician</code>
+
+📍 &nbsp;Ontario, Canada &nbsp;&nbsp; 📧 &nbsp;[mohammadnoorchenarboo@gmail.com](mailto:mohammadnoorchenarboo@gmail.com)
+
+──────────────────────────────────────
+
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/mnoorchenar)&nbsp;
+[![Personal Site](https://img.shields.io/badge/Website-mnoorchenar.github.io-4f46e5?style=for-the-badge&logo=githubpages&logoColor=white)](https://mnoorchenar.github.io/)&nbsp;
+[![HuggingFace](https://img.shields.io/badge/HuggingFace-ffcc00?style=for-the-badge&logo=huggingface&logoColor=black)](https://huggingface.co/mnoorchenar/spaces)&nbsp;
+[![Google Scholar](https://img.shields.io/badge/Scholar-4285F4?style=for-the-badge&logo=googlescholar&logoColor=white)](https://scholar.google.ca/citations?user=nn_Toq0AAAAJ&hl=en)&nbsp;
+[![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/mnoorchenar)
+
+</td>
+</tr>
+</table>
+
+</div>
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these steps:
+
+1. **Fork** the repository
+2. **Create** a feature branch: `git checkout -b feature/amazing-feature`
+3. **Commit** your changes: `git commit -m 'Add amazing feature'`
+4. **Push** to the branch: `git push origin feature/amazing-feature`
+5. **Open** a Pull Request
+
+---
+
+## Disclaimer
+
+<span style="color:red">This project is developed strictly for educational and research purposes and does not constitute professional medical advice of any kind. All datasets used are subject to institutional data-use agreements — no patient-identifiable information is included in this repository. This software is provided "as is" without warranty of any kind; use at your own risk.</span>
+
+---
+
+## 📜 License
+
+Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more information.
+
+---
+
+<div align="center">
+
+<img src="https://capsule-render.vercel.app/api?type=waving&color=0:3b82f6,100:4f46e5&height=120&section=footer&text=Made%20with%20%E2%9D%A4%EF%B8%8F%20by%20Mohammad%20Noorchenarboo&fontColor=ffffff&fontSize=18&fontAlignY=80" width="100%"/>
+
+[![GitHub Stars](https://img.shields.io/github/stars/mnoorchenar/surgical-casetime-llm?style=social)](https://github.com/mnoorchenar/surgical-casetime-llm)
+[![GitHub Forks](https://img.shields.io/github/forks/mnoorchenar/surgical-casetime-llm?style=social)](https://github.com/mnoorchenar/surgical-casetime-llm/fork)
+
+<sub>This project is developed purely for academic and research purposes. Any similarity to existing company names, products, or trademarks is entirely coincidental and unintentional. This project has no affiliation with any commercial entity.</sub>
+
+</div>
