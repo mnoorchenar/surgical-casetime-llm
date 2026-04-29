@@ -79,25 +79,38 @@ sdk: docker
 
 ## 🏗️ Architecture
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│              Surgical Case Time LLM Pipeline                       │
-│                                                                    │
-│  ┌──────────┐  ┌───────────────────┐  ┌──────────────────────┐  │
-│  │ casetime │─▶│ Stage 02          │─▶│ Stage 02b            │  │
-│  │  .csv    │  │ Gemini / HF       │  │ Groq Llama-3.1       │  │
-│  └──────────┘  │ Text Embeddings   │  │ Clinical Features    │  │
-│                └────────┬──────────┘  └──────────┬───────────┘  │
-│                         │                          │              │
-│                ┌────────▼──────────────────────────▼──────────┐  │
-│                │  Stage 03 — Feature Engineering (5-fold CV)  │  │
-│                └────────────────────────┬──────────────────────┘  │
-│                                         │                          │
-│                              ┌──────────▼───────────┐             │
-│                              │ Stage 04 — Optuna HPO │             │
-│                              │ Ridge/Lasso/RF/XGB/   │             │
-│                              │ LGB/MLP               │             │
-│                              └──────────────────────┘             │
+<div align="center">
+<svg width="680" height="275" viewBox="0 0 680 275" xmlns="http://www.w3.org/2000/svg">
+  <rect width="680" height="275" rx="12" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5"/>
+  <text x="340" y="22" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="#1e293b">Surgical Case Time LLM Pipeline</text>
+  <rect x="20" y="30" width="115" height="55" rx="8" fill="#3b82f6"/>
+  <text x="77" y="54" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="white">casetime</text>
+  <text x="77" y="72" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#bfdbfe">.csv</text>
+  <rect x="155" y="30" width="170" height="55" rx="8" fill="#4f46e5"/>
+  <text x="240" y="54" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="white">Stage 02</text>
+  <text x="240" y="72" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#c7d2fe">Gemini / HF Embeddings</text>
+  <rect x="355" y="30" width="175" height="55" rx="8" fill="#4f46e5"/>
+  <text x="442" y="54" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="white">Stage 02b</text>
+  <text x="442" y="72" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#c7d2fe">Groq Llama-3.1 Features</text>
+  <rect x="90" y="130" width="500" height="55" rx="8" fill="#0f766e"/>
+  <text x="340" y="154" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="white">Stage 03 — Feature Engineering</text>
+  <text x="340" y="172" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#99f6e4">5-fold CV · impute · one-hot · PCA</text>
+  <rect x="190" y="207" width="300" height="55" rx="8" fill="#7c3aed"/>
+  <text x="340" y="231" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="white">Stage 04 — Optuna HPO</text>
+  <text x="340" y="249" text-anchor="middle" font-family="Arial,sans-serif" font-size="11" fill="#ede9fe">Ridge · Lasso · RF · XGB · LGB · MLP</text>
+  <line x1="135" y1="57" x2="147" y2="57" stroke="#64748b" stroke-width="1.5"/>
+  <polygon points="147,53 155,57 147,61" fill="#64748b"/>
+  <line x1="325" y1="57" x2="347" y2="57" stroke="#64748b" stroke-width="1.5"/>
+  <polygon points="347,53 355,57 347,61" fill="#64748b"/>
+  <line x1="240" y1="85" x2="240" y2="110" stroke="#64748b" stroke-width="1.5"/>
+  <line x1="442" y1="85" x2="442" y2="110" stroke="#64748b" stroke-width="1.5"/>
+  <line x1="240" y1="110" x2="442" y2="110" stroke="#64748b" stroke-width="1.5"/>
+  <line x1="341" y1="110" x2="341" y2="122" stroke="#64748b" stroke-width="1.5"/>
+  <polygon points="337,122 341,130 345,122" fill="#64748b"/>
+  <line x1="340" y1="185" x2="340" y2="199" stroke="#64748b" stroke-width="1.5"/>
+  <polygon points="336,199 340,207 344,199" fill="#64748b"/>
+</svg>
+</div>
 └──────────────────────────────────────────────────────────────────┘
 ```
 
