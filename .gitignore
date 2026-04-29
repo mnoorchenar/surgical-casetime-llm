@@ -20,3 +20,9 @@ models/
 # Keep raw data and cleaned DB
 !data/casetime.csv
 !data/surgical_data.db
+
+# Data files -- keep local only, do not upload to GitHub
+*.csv
+*.db
+*.sqlite
+*.sqlite3
