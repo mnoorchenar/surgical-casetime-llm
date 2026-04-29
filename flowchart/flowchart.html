@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pipeline Flowchart</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        svg { max-width: 100%; height: auto; }
+
+        @page { size: A4 portrait; margin: 8mm; }
+
+        @media print {
+            body {
+                padding: 0;
+                min-height: 0;
+                background: transparent;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            svg { width: 100%; height: auto; }
+        }
+    </style>
+</head>
+<body>
+<!--
+  Layout constants — see flowchart/flowchart_rules.md for full reference
+  ─────────────────────────────────────────────────────────────────────────────
+  ViewBox          : 0 0 1000 1350
+  Phase band height: 225  (header @+42, box starts @+60, bottom pad 20px)
+  Inner box height : 145  (title @+52, sub1 @+90, sub2 @+120, 25px pad below)
+  Box horizontal   : x=50 / x=365 / x=680  width=270
+  Horizontal arrows: at box vertical centre (y_box + 72)
+  Inter-phase gap  : ~42px arrow between bands
+  Phase y-starts   : 140 / 415 / 690 / 965
+  Box y-starts     : 200 / 475 / 750 / 1025
+  Phase colours    : #3d47ba / #2d7a6b / #a65628 / #b8860b
+  ─────────────────────────────────────────────────────────────────────────────
+-->
+<svg viewBox="0 0 1000 1350" xmlns="http://www.w3.org/2000/svg"
+     style="font-family:'Segoe UI',Arial,sans-serif;">
+    <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10"
+                refX="9" refY="5" orient="auto" markerUnits="strokeWidth">
+            <path d="M 0 1 L 9 5 L 0 9 L 2.5 5 Z" fill="#999"/>
+        </marker>
+    </defs>
+
+    <!-- ── TOP PILL ───────────────────────────────────────────────────── -->
+    <rect x="175" y="20" width="650" height="90" rx="45" fill="#555"/>
+    <text x="500" y="58" font-size="28" font-weight="500"
+          text-anchor="middle" fill="white">Surgical Dataset · 180,370 cases</text>
+    <text x="500" y="92" font-size="24" font-weight="400"
+          text-anchor="middle" fill="#d0d0d0">1,730 unique procedures · casetime.csv</text>
+
+    <line x1="500" y1="110" x2="500" y2="132"
+          stroke="#999" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         PHASE 1 — Data Cleaning   y=140  h=225  bottom=365
+    ══════════════════════════════════════════════════════════════════ -->
+    <rect x="25" y="140" width="950" height="225" rx="20"
+          fill="#3d47ba" stroke="#fff" stroke-width="3"/>
+    <text x="500" y="182" font-size="36" font-weight="600"
+          text-anchor="middle" fill="white">Phase 1 — Data Cleaning</text>
+
+    <!-- P1 Box 1 -->
+    <rect x="50"  y="200" width="270" height="145" rx="18" fill="#3d47ba" stroke="#fff" stroke-width="2"/>
+    <text x="185" y="252" font-size="26" font-weight="600" text-anchor="middle" fill="white">Outlier Removal</text>
+    <text x="185" y="290" font-size="22" text-anchor="middle" fill="#f0f0f0">5–600 min range</text>
+    <text x="185" y="320" font-size="20" text-anchor="middle" fill="#e0e0e0">&lt;0.8% cases removed</text>
+
+    <line x1="322" y1="272" x2="357" y2="272" stroke="#999" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <!-- P1 Box 2 -->
+    <rect x="365" y="200" width="270" height="145" rx="18" fill="#3d47ba" stroke="#fff" stroke-width="2"/>
+    <text x="500" y="252" font-size="26" font-weight="600" text-anchor="middle" fill="white">Normalisation</text>
+    <text x="500" y="290" font-size="22" text-anchor="middle" fill="#f0f0f0">timestamps · procedure</text>
+    <text x="500" y="320" font-size="20" text-anchor="middle" fill="#e0e0e0">lowercase · dedup</text>
+
+    <line x1="637" y1="272" x2="672" y2="272" stroke="#999" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <!-- P1 Box 3 -->
+    <rect x="680" y="200" width="270" height="145" rx="18" fill="#3d47ba" stroke="#fff" stroke-width="2"/>
+    <text x="815" y="252" font-size="26" font-weight="600" text-anchor="middle" fill="white">SQLite Storage</text>
+    <text x="815" y="290" font-size="22" text-anchor="middle" fill="#f0f0f0">surgical_data.db</text>
+    <text x="815" y="320" font-size="20" text-anchor="middle" fill="#e0e0e0">mean=135.6 min</text>
+
+    <line x1="500" y1="365" x2="500" y2="407"
+          stroke="#999" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         PHASE 2 — Text Encoding   y=415  h=225  bottom=640
+    ══════════════════════════════════════════════════════════════════ -->
+    <rect x="25" y="415" width="950" height="225" rx="20"
+          fill="#2d7a6b" stroke="#fff" stroke-width="3"/>
+    <text x="500" y="457" font-size="36" font-weight="600"
+          text-anchor="middle" fill="white">Phase 2 — Text Encoding</text>
+
+    <!-- P2 Box 1 -->
+    <rect x="50"  y="475" width="270" height="145" rx="18" fill="#2d7a6b" stroke="#fff" stroke-width="2"/>
+    <text x="185" y="527" font-size="26" font-weight="600" text-anchor="middle" fill="white">HuggingFace Embed</text>
+    <text x="185" y="565" font-size="22" text-anchor="middle" fill="#f0f0f0">all-MiniLM-L6-v2</text>
+    <text x="185" y="595" font-size="20" text-anchor="middle" fill="#e0e0e0">384-dim · local · cached</text>
+
+    <line x1="322" y1="547" x2="357" y2="547" stroke="#999" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <!-- P2 Box 2 -->
+    <rect x="365" y="475" width="270" height="145" rx="18" fill="#2d7a6b" stroke="#fff" stroke-width="2"/>
+    <text x="500" y="519" font-size="26" font-weight="600" text-anchor="middle" fill="white">LLM Feature</text>
+    <text x="500" y="549" font-size="26" font-weight="600" text-anchor="middle" fill="white">Extraction</text>
+    <text x="500" y="581" font-size="22" text-anchor="middle" fill="#f0f0f0">Groq Llama-3.1-8b</text>
+    <text x="500" y="607" font-size="20" text-anchor="middle" fill="#e0e0e0">16 features · JSON schema</text>
+
+    <line x1="637" y1="547" x2="672" y2="547" stroke="#999" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <!-- P2 Box 3 -->
+    <rect x="680" y="475" width="270" height="145" rx="18" fill="#2d7a6b" stroke="#fff" stroke-width="2"/>
+    <text x="815" y="519" font-size="26" font-weight="600" text-anchor="middle" fill="white">4 Encoding</text>
+    <text x="815" y="549" font-size="26" font-weight="600" text-anchor="middle" fill="white">Variants</text>
+    <text x="815" y="581" font-size="22" text-anchor="middle" fill="#f0f0f0">struct · llm · hf · hf+llm</text>
+    <text x="815" y="607" font-size="20" text-anchor="middle" fill="#e0e0e0">38–438 dim</text>
+
+    <line x1="500" y1="640" x2="500" y2="682"
+          stroke="#999" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         PHASE 3 — Feature Engineering and Cross-Validation   y=690  h=225  bottom=915
+    ══════════════════════════════════════════════════════════════════ -->
+    <rect x="25" y="690" width="950" height="225" rx="20"
+          fill="#a65628" stroke="#fff" stroke-width="3"/>
+    <text x="500" y="732" font-size="36" font-weight="600"
+          text-anchor="middle" fill="white">Phase 3 — Feature Engineering and Cross-Validation</text>
+
+    <!-- P3 Box 1 -->
+    <rect x="50"  y="750" width="270" height="145" rx="18" fill="#a65628" stroke="#fff" stroke-width="2"/>
+    <text x="185" y="802" font-size="26" font-weight="600" text-anchor="middle" fill="white">Imputation + OHE</text>
+    <text x="185" y="840" font-size="22" text-anchor="middle" fill="#f0f0f0">mean impute per fold</text>
+    <text x="185" y="870" font-size="20" text-anchor="middle" fill="#e0e0e0">surgeon · room · service</text>
+
+    <line x1="322" y1="822" x2="357" y2="822" stroke="#999" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <!-- P3 Box 2 -->
+    <rect x="365" y="750" width="270" height="145" rx="18" fill="#a65628" stroke="#fff" stroke-width="2"/>
+    <text x="500" y="802" font-size="26" font-weight="600" text-anchor="middle" fill="white">5-Fold CV</text>
+    <text x="500" y="840" font-size="22" text-anchor="middle" fill="#f0f0f0">fold_encoded.db</text>
+    <text x="500" y="870" font-size="20" text-anchor="middle" fill="#e0e0e0">3.3 GB · 5 folds × 4 enc.</text>
+
+    <line x1="637" y1="822" x2="672" y2="822" stroke="#999" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <!-- P3 Box 3 -->
+    <rect x="680" y="750" width="270" height="145" rx="18" fill="#a65628" stroke="#fff" stroke-width="2"/>
+    <text x="815" y="802" font-size="26" font-weight="600" text-anchor="middle" fill="white">Hyperparameter Opt.</text>
+    <text x="815" y="840" font-size="22" text-anchor="middle" fill="#f0f0f0">Optuna TPE · 5 trials</text>
+    <text x="815" y="870" font-size="20" text-anchor="middle" fill="#e0e0e0">10% sub-sample per fold</text>
+
+    <line x1="500" y1="915" x2="500" y2="957"
+          stroke="#999" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         PHASE 4 — Modelling and Evaluation   y=965  h=225  bottom=1190
+    ══════════════════════════════════════════════════════════════════ -->
+    <rect x="25" y="965" width="950" height="225" rx="20"
+          fill="#b8860b" stroke="#fff" stroke-width="3"/>
+    <text x="500" y="1007" font-size="36" font-weight="600"
+          text-anchor="middle" fill="white">Phase 4 — Modelling and Evaluation</text>
+
+    <!-- P4 Box 1 -->
+    <rect x="50"  y="1025" width="270" height="145" rx="18" fill="#b8860b" stroke="#fff" stroke-width="2"/>
+    <text x="185" y="1069" font-size="26" font-weight="600" text-anchor="middle" fill="white">7 ML Models</text>
+    <text x="185" y="1101" font-size="20" text-anchor="middle" fill="#f0f0f0">Ridge · Lasso · ElasticNet</text>
+    <text x="185" y="1125" font-size="20" text-anchor="middle" fill="#f0f0f0">RF · XGBoost · LightGBM · MLP</text>
+    <text x="185" y="1148" font-size="18" text-anchor="middle" fill="#e0e0e0">140 combinations</text>
+
+    <line x1="322" y1="1097" x2="357" y2="1097" stroke="#999" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <!-- P4 Box 2 -->
+    <rect x="365" y="1025" width="270" height="145" rx="18" fill="#b8860b" stroke="#fff" stroke-width="2"/>
+    <text x="500" y="1077" font-size="26" font-weight="600" text-anchor="middle" fill="white">Best Model</text>
+    <text x="500" y="1115" font-size="22" text-anchor="middle" fill="#f0f0f0">LightGBM + hf_llm</text>
+    <text x="500" y="1145" font-size="20" text-anchor="middle" fill="#e0e0e0">MAE=26.58 min · R²=0.852</text>
+
+    <line x1="637" y1="1097" x2="672" y2="1097" stroke="#999" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <!-- P4 Box 3 -->
+    <rect x="680" y="1025" width="270" height="145" rx="18" fill="#b8860b" stroke="#fff" stroke-width="2"/>
+    <text x="815" y="1077" font-size="26" font-weight="600" text-anchor="middle" fill="white">Evaluation</text>
+    <text x="815" y="1115" font-size="22" text-anchor="middle" fill="#f0f0f0">MAE · RMSE · R²</text>
+    <text x="815" y="1145" font-size="20" text-anchor="middle" fill="#e0e0e0">SMAPE · ablation</text>
+
+    <line x1="500" y1="1190" x2="500" y2="1232"
+          stroke="#999" stroke-width="3" marker-end="url(#arrow)"/>
+
+    <!-- ── BOTTOM PILL ─────────────────────────────────────────────── -->
+    <rect x="150" y="1240" width="700" height="90" rx="45" fill="#555"/>
+    <text x="500" y="1278" font-size="26" font-weight="500"
+          text-anchor="middle" fill="white">Case duration predictions · ablation study</text>
+    <text x="500" y="1312" font-size="22" font-weight="400"
+          text-anchor="middle" fill="#d0d0d0">encoding contribution · model family comparison</text>
+</svg>
+</body>
+</html>

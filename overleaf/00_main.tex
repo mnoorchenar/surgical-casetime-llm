@@ -1,0 +1,182 @@
+\documentclass[11pt,twocolumn]{article}
+
+%% ── Packages ─────────────────────────────────────────────────────────────────
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[margin=1in,columnsep=0.35in]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\graphicspath{{results/}}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{url}
+\usepackage{siunitx}
+\usepackage{threeparttable}
+\usepackage{rotating}
+\usepackage{pdflscape}
+%% tikz is not used — flowchart is SVG-based; do not add tikz.
+
+%% ── Hyperref ─────────────────────────────────────────────────────────────────
+\hypersetup{
+  colorlinks=true, linkcolor=blue!70!black,
+  citecolor=green!50!black, urlcolor=blue!70!black,
+}
+
+%% ── Custom commands ──────────────────────────────────────────────────────────
+\newcommand{\best}[1]{\textbf{#1}}
+\newcommand{\enc}[1]{\texttt{#1}}
+\definecolor{bestcol}{HTML}{27AE60}
+\newcommand{\bestval}[1]{{\color{bestcol}\textbf{#1}}}
+
+%% ── Title and authors ────────────────────────────────────────────────────────
+\title{\textbf{Predicting Surgical Case Duration with Lightweight Language Model Embeddings:
+A LangChain--LangGraph Pipeline Combining Text, Structured, and LLM-Extracted Features}}
+
+\author{%
+  [Author Names]\\
+  \small Department of [Surgery / Biomedical Informatics], [Institution]\\
+  \small \texttt{[email@institution.edu]}
+}
+\date{April 2026}
+
+%% =============================================================================
+\begin{document}
+\maketitle
+
+%% ── Abstract ─────────────────────────────────────────────────────────────────
+%% One continuous paragraph, max 250 words.
+%% Structure: Background → Methods → Results → Conclusions.
+%% No \cite{}, \ref{}, or undefined abbreviations.
+\begin{abstract}
+\textbf{Background:} Accurate prediction of surgical case duration is critical for
+operating-room scheduling, resource allocation, and reduction of costly schedule
+overruns. Existing models rely predominantly on structured tabular features, leaving
+rich semantics in free-text procedure names underutilised.
+
+\textbf{Methods:} We developed a five-stage automated pipeline—orchestrated with
+LangGraph—that integrates (i) structured electronic health-record features,
+(ii) 384-dimensional sentence embeddings of procedure names (HuggingFace
+\texttt{all-MiniLM-L6-v2}), and (iii) structured clinical attributes extracted by a
+large language model (Groq Llama-3.1-8b-instant) including procedural complexity,
+body region, and surgical modality.  Four encoding variants were evaluated across
+seven machine-learning models (Ridge, Lasso, ElasticNet, Random Forest, XGBoost,
+LightGBM, MLP) with Optuna hyperparameter optimisation and rigorous 5-fold
+cross-validation on 180,370 surgical cases.
+
+\textbf{Results:} The best model—LightGBM trained on the combined
+structured + HuggingFace embedding + LLM-feature encoding—achieved a mean absolute
+error (MAE) of \bestval{26.58~min} ($\pm$0.11), RMSE of 42.26~min, R$^2$ of 0.852,
+and SMAPE of 21.69\%.  Adding HuggingFace embeddings to structured features alone
+reduced MAE by 26\% (46.6 $\to$ 34.1~min for Random Forest) and by 32\%
+(35.0 $\to$ 26.8~min for LightGBM).  LLM-extracted features provided a further
+consistent 0.2--0.5~min improvement over embeddings alone.
+
+\textbf{Conclusions:} Lightweight text embeddings and LLM-extracted procedural
+features substantially improve surgical case-time prediction beyond structured data
+alone.  The fully reproducible open-source pipeline achieves state-of-the-art
+performance using only free-tier API services and locally-run models.
+
+\medskip
+\noindent\textbf{Keywords:} surgical case duration, operating room scheduling,
+natural language processing, sentence embeddings, LightGBM, LangChain, LangGraph,
+machine learning.
+\end{abstract}
+
+%% ── Abbreviations ─────────────────────────────────────────────────────────────
+%% Update whenever a new acronym is introduced anywhere in the paper.
+\section*{Abbreviations}
+\begin{description}
+    \item[ASA]          American Society of Anesthesiologists
+    \item[EHR]          Electronic health records
+    \item[HF]           HuggingFace
+    \item[HPO]          Hyperparameter optimisation
+    \item[IQR]          Interquartile range
+    \item[LightGBM]     Light Gradient Boosting Machine
+    \item[LLM]          Large language model
+    \item[MAE]          Mean absolute error
+    \item[MLP]          Multilayer perceptron
+    \item[NLP]          Natural language processing
+    \item[OR]           Operating room
+    \item[PCA]          Principal component analysis
+    \item[RMSE]         Root mean squared error
+    \item[SMAPE]        Symmetric mean absolute percentage error
+    \item[SQLite]       Self-contained SQL database engine
+    \item[TPE]          Tree-structured Parzen Estimator
+    \item[XGBoost]      Extreme Gradient Boosting
+\end{description}
+
+%% ── 1. Introduction ──────────────────────────────────────────────────────────
+\section{Introduction}\label{sec:introduction}
+\input{overleaf/01_introduction}
+
+%% ── 2. Related Work ──────────────────────────────────────────────────────────
+\section{Related Work}\label{sec:related_work}
+\input{overleaf/02_related_works}
+
+%% ── 3. Methodology ───────────────────────────────────────────────────────────
+\section{Methodology}\label{sec:methodology}
+\input{overleaf/03_methodology}
+
+%% Flowchart referenced inside 03_methodology as Figure~\ref{fig:flowchart}
+\begin{figure*}[tp]
+  \centering
+  \input{flowchart/06_flowchart}
+  \caption{Overall workflow of the proposed five-stage LangGraph pipeline.}
+  \label{fig:flowchart}
+\end{figure*}
+
+%% ── 4. Results and Discussion ────────────────────────────────────────────────
+\section{Results and Discussion}\label{sec:results}
+\input{overleaf/04_results}
+
+%% ── 5. Conclusion ────────────────────────────────────────────────────────────
+%% Write conclusion inline here in Step 7. Four paragraphs:
+%% 1. Summary — restate problem + approach in 2–3 sentences. No numbers.
+%% 2. Contribution — key quantitative findings; what makes this work novel.
+%% 3. Limitations — dataset scope, generalisability, assumptions. No hedging.
+%% 4. Future work — 2–3 concrete directions tied to limitations or open questions.
+\section{Conclusion}\label{sec:conclusion}
+\textcolor{gray}{\textit{[Conclusion will be written in Step 7.]}}
+
+%% ── CRediT authorship contribution statement ─────────────────────────────────
+\section*{CRediT authorship contribution statement}
+\textbf{Mohammad Noorcheshm}: Conceptualization, Methodology, Data analysis
+and curation, Software, Writing: original draft and editing.
+
+%% ── Declaration of competing interest ───────────────────────────────────────
+\section*{Declaration of competing interest}
+The authors declare that they have no known competing financial interests or
+personal relationships that could have appeared to influence the work reported
+in this paper.
+
+%% ── Acknowledgement ─────────────────────────────────────────────────────────
+\section*{Acknowledgement}
+%% Fill in funding sources and acknowledgements before submission.
+
+%% ── Data availability ────────────────────────────────────────────────────────
+%% Choose one option and remove the others before submission:
+%% Option A — data is open:
+%%   The data used in this study are publicly available at [repository/DOI].
+%% Option B — data is proprietary:
+%%   The data used in this study is proprietary and subject to confidentiality
+%%   agreements; therefore, it cannot be shared.
+%% Option C — data available on request:
+%%   The data that support the findings of this study are available from the
+%%   corresponding author upon reasonable request.
+\section*{Data availability}
+
+%% ── Bibliography ─────────────────────────────────────────────────────────────
+\bibliographystyle{unsrt}
+\bibliography{overleaf/references}
+
+\end{document}

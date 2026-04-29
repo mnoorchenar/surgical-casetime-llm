@@ -5,3 +5,18 @@
 *.log
 .vscode/
 *.tmp
+
+# Prompt and design rules — keep private, not for version control
+prompt.md
+flowchart/flowchart_rules.md
+
+# Data outputs (large files — not committed)
+data/embed_cache/
+data/fold_encoded.db
+data/llm_features.json
+results/
+models/
+
+# Keep raw data and cleaned DB
+!data/casetime.csv
+!data/surgical_data.db

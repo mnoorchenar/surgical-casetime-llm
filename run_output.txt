@@ -1,0 +1,33 @@
+
+======================================================================
+  TEST RUN -- Stage 01 + Stage 02 HuggingFace only
+======================================================================
+  [>>]  Stage 01 already complete (./data/surgical_data.db). Skipping.
+Running HuggingFace embedding (task 2)...
+
+======================================================================
+  STAGE 02 / TASK 2 -- HUGGINGFACE embeddings
+======================================================================
+  Output : ./data/embed_cache\huggingface_scheduled_procedure.npy
+  Loaded 180,370 texts from 'scheduled_procedure'
+  Loading sentence-transformers/all-MiniLM-L6-v2 locally ...
+WARNING:tensorflow:From C:\Users\mnoorche\AppData\Local\anaconda3\Lib\site-packages\tf_keras\src\losses.py:2976: The name tf.losses.sparse_softmax_cross_entropy is deprecated. Please use tf.compat.v1.losses.sparse_softmax_cross_entropy instead.
+
+Traceback (most recent call last):
+  File "<string>", line 15, in <module>
+    P._s02_run_task(2)
+    ~~~~~~~~~~~~~~~^^^
+  File "D:\SurgeryProject\Clinical-Lightweight-Language-Model - Copy\pipeline.py", line 578, in _s02_run_task
+    embs = _s02_compute_huggingface(texts)
+  File "D:\SurgeryProject\Clinical-Lightweight-Language-Model - Copy\pipeline.py", line 557, in _s02_compute_huggingface
+    embs = embedder.embed_documents(texts)
+  File "C:\Users\mnoorche\AppData\Local\anaconda3\Lib\site-packages\langchain_huggingface\embeddings\huggingface.py", line 155, in embed_documents
+    return self._embed(texts, self.encode_kwargs)
+           ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\mnoorche\AppData\Local\anaconda3\Lib\site-packages\langchain_huggingface\embeddings\huggingface.py", line 130, in _embed
+    embeddings = self._client.encode(
+        texts,
+        show_progress_bar=self.show_progress,
+        **encode_kwargs,
+    )
+TypeError: sentence_transformers.SentenceTransformer.SentenceTransformer.encode() got multiple values for keyword argument 'show_progress_bar'
